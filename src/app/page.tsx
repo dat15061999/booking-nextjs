@@ -1,103 +1,197 @@
-import Image from "next/image";
+"use client";
+
+import Login from "@/app/login/page";
+import { useState } from "react";
+import Link from "next/link";
+import TripInformPage, { TripInform } from "@/components/TripInform";
+import TripHobbiesPage, { TripHobbies } from "@/components/TripHobbies";
+import { apiService } from "@/lib/apiService";
+import { log } from "console";
+import { usePromptToAI } from "@/lib/callAI";
+import About from "@/components/About";
+import Destinations from "@/components/Destinations";
+import TripCard from "@/components/TripCard";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [token, setToken] = useState("");
+  const [currentShow, setCurrentShow] = useState("1");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // if (!token) {
+  //     return <Login setToken={setToken} />;
+  // }
+
+  const [trip, setTrip] = useState<TripInform>({
+    start_date: "",
+    destination: "",
+    duration_days: "",
+    traveler_ages: {
+      adults: "",
+      children: "",
+    },
+    traveler_info: "",
+    budget_level: "",
+    total_budget_vnd: "",
+    accommodation_preference: "",
+    otherPlace: "",
+  });
+
+  const [hobbies, setHobbies] = useState<TripHobbies>({
+    trip_style_preference: "",
+    specific_interests: [],
+    food_preferences: "",
+    activity_pace: "",
+    transportation_preference_at_destination: "",
+    special_considerations: "",
+  });
+
+  const isTripValid = () => {
+    if (currentShow === "1") {
+      return (
+        trip.destination &&
+        trip.start_date &&
+        trip.traveler_ages.adults &&
+        trip.total_budget_vnd &&
+        trip.accommodation_preference
+      );
+    } else if (currentShow === "2") {
+      return (
+        hobbies.trip_style_preference && hobbies.specific_interests.length > 0
+      );
+    }
+    return false;
+  };
+
+  const { handleSubmitPrompt, loading, data, updateDailyItinerary } =
+    usePromptToAI();
+
+  return (
+    <main
+      id="home"
+      className="min-h-screen flex flex-col text-gray-900 font-sans"
+    >
+      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-500/80 to-indigo-600/80 backdrop-blur-md py-4 text-center text-white font-bold tracking-wider select-none shadow-lg border-b border-white/20">
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100">
+            Trips
+          </div>
+          <div className="flex gap-8">
+            <Link
+              href="#home"
+              className="hover:text-blue-200 transition-all duration-300 hover:scale-110"
+            >
+              Home
+            </Link>
+            <Link
+              href="#destinations"
+              className="hover:text-blue-200 transition-all duration-300 hover:scale-110"
+            >
+              Destinations
+            </Link>
+            <Link
+              href="#about"
+              className="hover:text-blue-200 transition-all duration-300 hover:scale-110"
+            >
+              About
+            </Link>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      </div>
+
+      <div className="w-full">
+        <div
+          className="flex-grow px-20 py-40 bg-cover bg-center w-full"
+          style={{
+            backgroundImage:
+              "url(https://cdn1.ivivu.com/images/2024/11/05/12/=utf-8BQmFubmVyIFRvcCBWw6kgVnVpIGNoxqFpNCAoMTkyMHg1MTMpICgxKS5wbmdfMC5wbmc==_.webp)",
+          }}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+          <div className="container mx-auto">
+            <h1 className="text-5xl font-extrabold my-4">
+              Đi đi, <span className="text-orange-500">tận hưởng</span> cuộc
+              sống mới <br />
+              <span className="text-blue-800">trọn vẹn</span>
+            </h1>
+
+            <div className="bg-white/1 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-gray-100 ">
+              {currentShow === "1" && (
+                <TripInformPage trip={trip} onUpdate={setTrip} />
+              )}
+
+              {currentShow === "2" && (
+                <TripHobbiesPage preferences={hobbies} onUpdate={setHobbies} />
+              )}
+
+              <div className="mt-6">
+                {data.daily_itinerary.length === 0 && (
+                  <div className="flex justify-center gap-4">
+                    <button
+                      onClick={() => {
+                        const currentPage = parseInt(currentShow);
+                        if (currentPage > 1) {
+                          setCurrentShow(String(currentPage - 1));
+                        }
+                      }}
+                      className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-4 rounded-xl hover:from-gray-600 hover:to-gray-700 transform hover:scale-105 transition-all duration-200 shadow-lg font-medium text-lg"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={() => {
+                        const currentPage = parseInt(currentShow);
+                        const totalPages = 3;
+                        if (currentPage < totalPages) {
+                          if (!isTripValid()) {
+                            alert(
+                              "Please fill in all required fields before proceeding"
+                            );
+                            return;
+                          }
+                          if (currentPage === 2) {
+                            handleSubmitPrompt(trip, hobbies);
+                          }
+                          setCurrentShow(String(currentPage + 1));
+                        }
+                      }}
+                      disabled={loading}
+                      className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading
+                        ? "Loading..."
+                        : parseInt(currentShow) === 2
+                        ? "Finish"
+                        : "Next"}
+                    </button>
+                  </div>
+                )}
+
+                {data.daily_itinerary.length > 0 && (
+                  <div className="flex flex-col gap-4 container mx-auto">
+                    {data.daily_itinerary.map((day, index) => (
+                      <TripCard
+                        key={index}
+                        tripData={day}
+                        onClick={() => {}}
+                        onUpdate={(dayNumber, updatedData) => {
+                          updateDailyItinerary(dayNumber, updatedData);
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Destinations />
+        <About />
+      </div>
+
+      <footer className="fixed bottom-0 left-0 right-0 text-indigo-200 text-center py-6 select-none bg-black/30 backdrop-blur-sm border-t border-white/10">
+        <p className="text-lg font-medium">
+          © 2024 TourBooker. All rights reserved.
+        </p>
       </footer>
-    </div>
+    </main>
   );
 }
