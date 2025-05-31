@@ -1,9 +1,9 @@
 "use client"
 import Link from "next/link";
-import {useRouter} from "next/navigation";
-import {FormEvent, useState} from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
 
-export default function Login(props: Readonly<{ setToken: (token: string) => void }>) {
+export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter();
@@ -27,7 +27,7 @@ export default function Login(props: Readonly<{ setToken: (token: string) => voi
         // Mock login
         if (email && password) {
             localStorage.setItem('token', 'mock-token');
-            props.setToken('asda')
+            // No longer using props.setToken
             router.push('/');
         } else {
             alert('Please fill all fields');

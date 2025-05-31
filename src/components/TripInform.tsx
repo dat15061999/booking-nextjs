@@ -12,6 +12,18 @@ const TripInformPage: React.FC<{
     field: keyof TripInform,
     value: string | TravelerAges
   ) => {
+    // Special validation for start_date
+    if (field === "start_date" && typeof value === "string") {
+      const selectedDate = new Date(value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time part for accurate date comparison
+
+      if (selectedDate < today) {
+        alert("Không thể chọn ngày trong quá khứ. Vui lòng chọn ngày hiện tại hoặc tương lai.");
+        return;
+      }
+    }
+
     if (onUpdate) {
       onUpdate({
         ...trip,
@@ -64,9 +76,8 @@ const TripInformPage: React.FC<{
                   adults: e.target.value,
                 })
               }
-              className={`${
-                trip.traveler_ages?.adults !== "" ? "pl-12" : ""
-              } bg-white border-2 border-gray-400 rounded-xl p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 placeholder-gray-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none w-full`}
+              className={`${trip.traveler_ages?.adults !== "" ? "pl-12 text-center" : ""
+                } bg-white border-2 border-gray-400 rounded-xl p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 placeholder-gray-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none w-full`}
             />
             {trip.traveler_ages.adults !== "" && (
               <>
@@ -110,9 +121,8 @@ const TripInformPage: React.FC<{
                   children: e.target.value,
                 })
               }
-              className={`${
-                trip.traveler_ages.children ? "pl-12" : ""
-              } bg-white border-2 border-gray-400 rounded-xl p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 placeholder-gray-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none w-full`}
+              className={`${trip.traveler_ages.children ? "pl-12 text-center" : ""
+                } bg-white border-2 border-gray-400 rounded-xl p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 placeholder-gray-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none w-full`}
             />
             {trip.traveler_ages.children !== "" && (
               <>
@@ -151,16 +161,15 @@ const TripInformPage: React.FC<{
             type="date"
             value={trip.start_date || ""}
             onChange={(e) => handleChange("start_date", e.target.value)}
-            className={`${
-              trip.start_date !== "" ? "!z-10" : "z-0"
-            } border-2 border-gray-400 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 placeholder-gray-700 bg-white w-full`}
+            min={new Date().toISOString().split('T')[0]} // Set minimum date to today
+            className={`${trip.start_date !== "" ? "!z-10" : "z-0"
+              } border-2 border-gray-400 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 placeholder-gray-700 bg-white w-full`}
             placeholder=""
           />
           {trip.start_date === "" && (
             <label
-              className={`${
-                trip.start_date !== "" ? "z-0" : "z-10 bg-white"
-              } absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none `}
+              className={`${trip.start_date !== "" ? "z-0" : "z-10 bg-white"
+                } absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none `}
             >
               Ngày xuất phát
             </label>
