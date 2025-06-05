@@ -5,7 +5,7 @@ export const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export const apiService = {
   async submitPrompt(prompt: TripInform & TripHobbies) {
     // Convert duration_days to a number and ensure it's valid
-    const durationDays = parseInt(prompt.duration_days) || 0;
+    const durationDays = prompt.duration_days;
 
     // Create the raw request string based on the presence of children
     let raw_request = `Gia đình tôi muốn đi du lịch ${prompt.destination} ${durationDays} ngày ${durationDays - 1} đêm`;
@@ -43,31 +43,6 @@ export const apiService = {
     }
   },
 
-  // async saveTrip(tripData: TripData, userInfo: TripInform & TripHobbies) {
-  //   try {
-  //     const response = await fetch(`${API_URL}/save_trip`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "Authorization": `Bearer ${localStorage.getItem('token') || ''}`,
-  //       },
-  //       body: JSON.stringify({
-  //         trip_data: tripData,
-  //         user_preferences: userInfo
-  //       }),
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error! status: ${response.status}`);
-  //     }
-
-  //     return await response.json();
-  //   } catch (error) {
-  //     console.error("Error saving trip:", error);
-  //     throw error;
-  //   }
-  // },
-
   async createTrip(tripData: TripData) {
     try {
       const response = await fetch(`${API_URL}/api/trip_plan/create`, {
@@ -94,7 +69,7 @@ export const apiService = {
     }
   },
 
-  async listTrips(userId: number): Promise<TripListResponse> {
+  async listTrips(): Promise<TripListResponse> {
     try {
       const response = await fetch(`${API_URL}/api/trip_plan/list`, {
         method: "POST",

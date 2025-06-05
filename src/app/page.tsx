@@ -1,25 +1,17 @@
 "use client";
 
-import Login from "@/app/login/page";
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import TripInformPage from "@/components/TripInform";
 import TripHobbiesPage from "@/components/TripHobbies";
 import type { TripInform, TripHobbies } from "@/lib/types";
-import { apiService } from "@/lib/apiService";
 import { usePromptToAI } from "@/lib/callAI";
 import About from "@/components/About";
 import Destinations from "@/components/Destinations";
 import TripCard from "@/components/TripCard";
 
 export default function Home() {
-  const [token, setToken] = useState("");
   const [currentShow, setCurrentShow] = useState("1");
-
-  // if (!token) {
-  //     return <Login setToken={setToken} />;
-  // }
 
   const [trip, setTrip] = useState<TripInform>({
     start_date: "",
@@ -261,7 +253,6 @@ export default function Home() {
                       <TripCard
                         key={index}
                         tripData={day}
-                        onClick={() => { }}
                         onUpdate={(dayNumber, updatedData) => {
                           updateDailyItinerary(dayNumber, updatedData);
                         }}

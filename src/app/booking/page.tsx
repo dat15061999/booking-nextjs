@@ -204,7 +204,6 @@ export default function BookingPage() {
                             <TripCard
                                 key={day.day}
                                 tripData={day}
-                                onClick={() => { }}
                                 onUpdate={(dayNumber, updatedData) => {
                                     updateDailyItinerary(updatedData.day, updatedData);
                                 }}

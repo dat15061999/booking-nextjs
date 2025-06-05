@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { TripPlan } from '@/lib/types';
 import { apiService } from '@/lib/apiService';
 import TripCard from './TripCard';
+import Image from "next/image";
 
 const TripList: React.FC = () => {
     const [trips, setTrips] = useState<TripPlan[]>([]);
@@ -14,8 +15,7 @@ const TripList: React.FC = () => {
         try {
             setLoading(true);
             // Hardcoded user ID for simplicity - in real app, get from auth context
-            const userId = 2;
-            const response = await apiService.listTrips(userId);
+            const response = await apiService.listTrips();
 
             if (response.meta.status) {
                 // Reverse the trips array so newest trips appear first
@@ -64,14 +64,6 @@ const TripList: React.FC = () => {
                 setDeleting(false);
             }
         }
-    };
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('vi-VN', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
     };
 
     if (loading) {
@@ -155,9 +147,9 @@ const TripList: React.FC = () => {
                 </div>
 
                 <div className="text-center py-16 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-indigo-50">
-                    <img src="/globe.svg" alt="No trips" className="w-24 h-24 mx-auto mb-6 opacity-50" />
+                    <Image src="/globe.svg" alt="No trips" className="w-24 h-24 mx-auto mb-6 opacity-50" />
                     <h3 className="text-xl font-semibold text-indigo-900 mb-2">No trips found</h3>
-                    <p className="text-gray-600 mb-8">You haven't created any trips yet. Start planning your next adventure!</p>
+                    <p className="text-gray-600 mb-8">You haven&apos;t created any trips yet. Start planning your next adventure!</p>
                     <a
                         href="/booking"
                         className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 inline-flex items-center text-lg group shadow-md"
@@ -194,9 +186,10 @@ const TripList: React.FC = () => {
                 {trips.map((trip) => (
                     <div key={trip.id} className={`bg-white/80 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden transition-all border border-indigo-50 hover:shadow-xl ${expandedTripId === trip.id ? 'ring-2 ring-indigo-500' : ''}`}>
                         {/* Trip Summary Header - Always visible */}
-                        <div
+                        <button
                             className="p-6 cursor-pointer hover:bg-indigo-50/50 transition-colors"
                             onClick={(e) => {
+                                e.preventDefault();
                                 if ((e.target as HTMLElement).closest('button') === null) {
                                     toggleTripExpansion(trip.id);
                                 }
@@ -278,16 +271,15 @@ const TripList: React.FC = () => {
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        </button>
 
                         {/* Trip Details - Visible only when expanded */}
                         {expandedTripId === trip.id && (
                             <div className="border-t border-indigo-100">
-                                {trip.itineraries.map((itinerary: any) => (
+                                {trip.itineraries.map((itinerary) => (
                                     <TripCard
                                         key={itinerary.id}
                                         tripData={itinerary}
-                                        onClick={() => { }}
                                         isCollapsible={true}
                                     />
                                 ))}
